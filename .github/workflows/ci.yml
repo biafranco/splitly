@@ -43,6 +43,9 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Run end-to-end tests
+        run: npm run test:e2e
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
@@ -56,3 +59,11 @@ jobs:
           files: ./coverage/lcov.info
           flags: ${{ matrix.os }}
           fail_ci_if_error: true
+
+      - name: Upload Cypress failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-${{ matrix.os }}
+          path: cypress/screenshots/
+          if-no-files-found: ignore
