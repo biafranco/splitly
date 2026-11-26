@@ -26,3 +26,5 @@ coverage/
 
 cypress/screenshots/
 cypress/videos/
+.vercel
+.env*
