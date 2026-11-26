@@ -48,3 +48,7 @@ jobs:
         with:
           name: coverage-${{ matrix.os }}
           path: coverage/
+      - name: Upload coverage reports to Codecov
+          uses: codecov/codecov-action@v5
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}
