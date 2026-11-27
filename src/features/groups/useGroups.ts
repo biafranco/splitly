@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { loadData, saveData } from '../../services/storage';
+import { loadData, saveData } from '../../infrastructure/storage';
 import {
   createGroup,
   updateGroup,
