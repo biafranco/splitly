@@ -85,3 +85,26 @@ export function createExpense(
 
   return { expense, splits };
 }
+
+export function updateExpense(
+  expense: Expense,
+  input: CreateExpenseInput,
+): ExpenseResult {
+  if (input.groupId !== expense.groupId) {
+    throw new Error('Expense group cannot be changed');
+  }
+
+  const result = createExpense(input);
+
+  return {
+    expense: {
+      ...result.expense,
+      id: expense.id,
+      createdAt: expense.createdAt,
+    },
+    splits: result.splits.map((split) => ({
+      ...split,
+      expenseId: expense.id,
+    })),
+  };
+}
