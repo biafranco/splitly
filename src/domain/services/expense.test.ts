@@ -1,6 +1,6 @@
 
 import { describe, it, expect } from 'vitest';
-import { createExpense } from './expense';
+import { createExpense, updateExpense } from './expense';
 
 const input = {
   groupId: 'group-1',
@@ -120,6 +120,128 @@ describe('createExpense', () => {
     const { expense } = createExpense({
       ...input,
       description: '  Dinner  ',
+    });
+
+    expect(expense.description).toBe('Dinner');
+  });
+});
+
+describe('updateExpense', () => {
+  it('should update the description', () => {
+    const { expense } = createExpense(input);
+
+    const result = updateExpense(expense, {
+      ...input,
+      description: 'Lunch',
+    });
+
+    expect(result.expense.description).toBe('Lunch');
+  });
+
+  it('should recalculate splits when amount changes', () => {
+    const { expense } = createExpense(input);
+
+    const result = updateExpense(expense, {
+      ...input,
+      amount: 20000,
+    });
+
+    expect(result.expense.amount).toBe(20000);
+    expect(result.splits[0].amount).toBe(10000);
+    expect(result.splits[1].amount).toBe(10000);
+  });
+
+  it('should preserve the expense identifier', () => {
+    const { expense } = createExpense(input);
+
+    const result = updateExpense(expense, input);
+
+    expect(result.expense.id).toBe(expense.id);
+  });
+
+  it('should preserve the creation date', () => {
+    const { expense } = createExpense(input);
+
+    const result = updateExpense(expense, input);
+
+    expect(result.expense.createdAt).toBe(expense.createdAt);
+  });
+
+  it('should update the modification date', () => {
+    const { expense } = createExpense(input);
+
+    expense.updatedAt = '2020-01-01T00:00:00.000Z';
+
+    const result = updateExpense(expense, input);
+
+    expect(result.expense.updatedAt).not.toBe(expense.updatedAt);
+  });
+
+  it('should preserve the expense identifier in splits', () => {
+    const { expense } = createExpense(input);
+
+    const result = updateExpense(expense, input);
+
+    expect(result.splits.every(
+      (split) => split.expenseId === expense.id,
+    )).toBe(true);
+  });
+
+  it('should allow changing the payer', () => {
+    const { expense } = createExpense(input);
+
+    const result = updateExpense(expense, {
+      ...input,
+      paidById: 'b',
+    });
+
+    expect(result.expense.paidById).toBe('b');
+  });
+
+  it('should allow changing the split type', () => {
+    const { expense } = createExpense(input);
+
+    const result = updateExpense(expense, {
+      ...input,
+      splitType: 'custom',
+      customSplits: [
+        { participantId: 'a', amount: 7000 },
+        { participantId: 'b', amount: 3000 },
+      ],
+    });
+
+    expect(result.expense.splitType).toBe('custom');
+    expect(result.splits[0].amount).toBe(7000);
+  });
+
+  it('should reject invalid updates', () => {
+    const { expense } = createExpense(input);
+
+    expect(() =>
+      updateExpense(expense, {
+        ...input,
+        amount: -100,
+      }),
+    ).toThrow();
+  });
+
+  it('should reject changing the expense group', () => {
+    const { expense } = createExpense(input);
+
+    expect(() =>
+      updateExpense(expense, {
+        ...input,
+        groupId: 'group-2',
+      }),
+    ).toThrow();
+  });
+
+  it('should not modify the original expense', () => {
+    const { expense } = createExpense(input);
+
+    updateExpense(expense, {
+      ...input,
+      description: 'Lunch',
     });
 
     expect(expense.description).toBe('Dinner');
