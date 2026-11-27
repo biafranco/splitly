@@ -10,3 +10,10 @@ export function fromCents(amount: number): number {
 export function isValidAmount(amount: number): boolean {
   return Number.isSafeInteger(amount) && amount > 0;
 }
+
+export function formatMoney(amount: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(fromCents(amount));
+}

@@ -1,4 +1,4 @@
-
+import { Link } from 'react-router-dom';
 import { UsersRound, Pencil, Trash2 } from 'lucide-react';
 import type { Group } from '../../domain/entities/group';
 
@@ -46,6 +46,13 @@ export function GroupCard({
       <p className="mt-2 text-sm text-slate-500">
         {group.description || 'Sem descrição'}
       </p>
+
+      <Link
+        to={`/groups/${group.id}`}
+        className="mt-5 block rounded-lg bg-primary-50 px-4 py-2 text-center text-sm font-medium text-primary-700"
+      >
+        Ver grupo
+      </Link>
     </article>
   );
 }

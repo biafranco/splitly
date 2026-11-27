@@ -7,7 +7,8 @@ import {
 import { AppLayout } from './components/layout/AppLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Groups } from './pages/Groups';
-  
+  import { GroupDetails } from './pages/GroupDetails';
+
 function App() {
   return (
     <BrowserRouter>
@@ -17,6 +18,7 @@ function App() {
           <Route path="groups" element={<Groups />} />
           <Route path="expenses" element={<h2>Despesas</h2>} />
           <Route path="settlements" element={<h2>Acertos</h2>} />
+          <Route path="groups/:id" element={<GroupDetails />} />
         </Route>
       </Routes>
     </BrowserRouter>
