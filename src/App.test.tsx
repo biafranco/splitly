@@ -7,8 +7,9 @@ describe('App', () => {
   it('should display the application name', () => {
     render(<App />);
 
-    expect(screen.getByText('Splitly')).toBeInTheDocument();
-  });
+    expect(
+      screen.getByRole('heading', { name: 'Splitly', level: 1 }),
+    ).toBeInTheDocument();  });
 
   it('should display the dashboard', () => {
     render(<App />);

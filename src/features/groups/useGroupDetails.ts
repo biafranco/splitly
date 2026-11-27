@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { loadData, saveData } from '../../infrastructure/storage';
+import { calculateGroupBalances } from '../../domain/services/group-balance';
+import { simplifyDebts } from '../../domain/services/settlement';
+import type { Settlement } from '../../domain/entities/settlement';
 import {
   createParticipant,
   updateParticipant,
@@ -133,15 +136,67 @@ export function useGroupDetails(groupId: string) {
     });
   }
 
-  return {
-    data,
-    group,
-    participants,
-    expenses,
-    addParticipant,
-    editParticipant,
-    removeParticipant,
-    saveExpense,
-    removeExpense,
+  const balances = calculateGroupBalances(data, groupId);
+
+const suggestions = simplifyDebts(balances);
+
+const settlements = data.settlements.filter(
+  (s) => s.groupId === groupId,
+);
+
+function registerSettlement(
+  fromParticipantId: string,
+  toParticipantId: string,
+  amount: number,
+) {
+  const valid = suggestions.some(
+    (s) =>
+      s.fromParticipantId === fromParticipantId &&
+      s.toParticipantId === toParticipantId &&
+      s.amount === amount,
+  );
+
+  if (!valid) {
+    throw new Error('Pagamento inválido');
+  }
+
+  const settlement: Settlement = {
+    id: crypto.randomUUID(),
+    groupId,
+    fromParticipantId,
+    toParticipantId,
+    amount,
+    createdAt: new Date().toISOString(),
   };
+
+  persist({
+    ...data,
+    settlements: [...data.settlements, settlement],
+  });
+}
+
+function removeSettlement(id: string) {
+  persist({
+    ...data,
+    settlements: data.settlements.filter(
+      (s) => !(s.id === id && s.groupId === groupId),
+    ),
+  });
+}
+return {
+  data,
+  group,
+  participants,
+  expenses,
+  balances,
+  suggestions,
+  settlements,
+  addParticipant,
+  editParticipant,
+  removeParticipant,
+  saveExpense,
+  removeExpense,
+  registerSettlement,
+  removeSettlement,
+};
 }

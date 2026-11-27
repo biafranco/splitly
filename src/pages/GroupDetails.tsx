@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react';
 import { useGroupDetails } from '../features/groups/useGroupDetails';
 import { ExpenseForm } from '../features/expenses/ExpenseForm';
+import { SettlementPanel } from '../features/settlements/SettlementPanel';
 import { formatMoney } from '../utils/money';
 import type { Expense } from '../domain/entities/expense';
 
@@ -14,11 +15,16 @@ export function GroupDetails() {
     group,
     participants,
     expenses,
+    balances,
+    suggestions,
+    settlements,
     addParticipant,
     editParticipant,
     removeParticipant,
     saveExpense,
     removeExpense,
+    registerSettlement,
+    removeSettlement,
   } = useGroupDetails(id);
 
   const [name, setName] = useState('');
@@ -239,6 +245,19 @@ export function GroupDetails() {
           </article>
         ))}
       </section>
+
+      <SettlementPanel
+        participants={participants}
+        balances={balances}
+        suggestions={suggestions}
+        settlements={settlements}
+        onPay={(from, to, amount) =>
+          execute(() => registerSettlement(from, to, amount))
+        }
+        onRemove={(id) =>
+          execute(() => removeSettlement(id))
+        }
+      />
 
       {expenseOpen && (
         <ExpenseForm
