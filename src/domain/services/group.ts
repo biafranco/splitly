@@ -1,10 +1,7 @@
 
 import type { Group } from '../entities/group';
 
-export function createGroup(
-  name: string,
-  description?: string,
-): Group {
+function validateGroupName(name: string): string {
   const normalizedName = name.trim();
 
   if (!normalizedName) {
@@ -15,6 +12,14 @@ export function createGroup(
     throw new Error('Group name is too long');
   }
 
+  return normalizedName;
+}
+
+export function createGroup(
+  name: string,
+  description?: string,
+): Group {
+  const normalizedName = validateGroupName(name);
   const now = new Date().toISOString();
 
   return {
@@ -23,5 +28,27 @@ export function createGroup(
     description: description?.trim() || undefined,
     createdAt: now,
     updatedAt: now,
+  };
+}
+
+export type UpdateGroupInput = Partial<
+  Pick<Group, 'name' | 'description'>
+>;
+
+export function updateGroup(
+  group: Group,
+  input: UpdateGroupInput,
+): Group {
+  return {
+    ...group,
+    name:
+      input.name !== undefined
+        ? validateGroupName(input.name)
+        : group.name,
+    description:
+      input.description !== undefined
+        ? input.description.trim() || undefined
+        : group.description,
+    updatedAt: new Date().toISOString(),
   };
 }
