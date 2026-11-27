@@ -1,6 +1,5 @@
-
 import { describe, it, expect } from 'vitest';
-import { splitEqually } from './expense-split';
+import { splitEqually, splitCustom } from './expense-split';
 
 describe('splitEqually', () => {
   it('should split an expense between two participants', () => {
@@ -61,5 +60,103 @@ describe('splitEqually', () => {
 
   it('should reject fractional cents', () => {
     expect(() => splitEqually(100.5, ['a'])).toThrow();
+  });
+});
+
+describe('splitCustom', () => {
+  it('should accept different amounts per participant', () => {
+    const splits = [
+      { participantId: 'a', amount: 8000 },
+      { participantId: 'b', amount: 5000 },
+      { participantId: 'c', amount: 2000 },
+    ];
+
+    expect(splitCustom(15000, splits)).toEqual(splits);
+  });
+
+  it('should accept a single participant', () => {
+    const splits = [{ participantId: 'a', amount: 1000 }];
+
+    expect(splitCustom(1000, splits)).toEqual(splits);
+  });
+
+  it('should accept zero individual amounts', () => {
+    const splits = [
+      { participantId: 'a', amount: 1000 },
+      { participantId: 'b', amount: 0 },
+    ];
+
+    expect(splitCustom(1000, splits)).toEqual(splits);
+  });
+
+  it('should reject amounts below the expense total', () => {
+    expect(() =>
+      splitCustom(1000, [
+        { participantId: 'a', amount: 900 },
+      ]),
+    ).toThrow();
+  });
+
+  it('should reject amounts above the expense total', () => {
+    expect(() =>
+      splitCustom(1000, [
+        { participantId: 'a', amount: 1100 },
+      ]),
+    ).toThrow();
+  });
+
+  it('should reject negative individual amounts', () => {
+    expect(() =>
+      splitCustom(1000, [
+        { participantId: 'a', amount: 1100 },
+        { participantId: 'b', amount: -100 },
+      ]),
+    ).toThrow();
+  });
+
+  it('should reject fractional cents', () => {
+    expect(() =>
+      splitCustom(1000, [
+        { participantId: 'a', amount: 500.5 },
+        { participantId: 'b', amount: 499.5 },
+      ]),
+    ).toThrow();
+  });
+
+  it('should reject duplicate participants', () => {
+    expect(() =>
+      splitCustom(1000, [
+        { participantId: 'a', amount: 500 },
+        { participantId: 'a', amount: 500 },
+      ]),
+    ).toThrow();
+  });
+
+  it('should reject empty splits', () => {
+    expect(() => splitCustom(1000, [])).toThrow();
+  });
+
+  it('should reject invalid expense amounts', () => {
+    expect(() =>
+      splitCustom(0, [
+        { participantId: 'a', amount: 0 },
+      ]),
+    ).toThrow();
+  });
+
+  it('should reject non-finite individual amounts', () => {
+    expect(() =>
+      splitCustom(1000, [
+        { participantId: 'a', amount: NaN },
+      ]),
+    ).toThrow();
+  });
+
+  it('should return independent split objects', () => {
+    const splits = [{ participantId: 'a', amount: 1000 }];
+    const result = splitCustom(1000, splits);
+
+    expect(result).not.toBe(splits);
+    expect(result[0]).not.toBe(splits[0]);
   });
 });
