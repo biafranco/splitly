@@ -1,12 +1,18 @@
-describe('Application', () => {
-  it('should load the home page', () => {
+
+describe('Application navigation', () => {
+  beforeEach(() => {
     cy.visit('/');
-    cy.contains('h1', 'Get started').should('be.visible');
   });
 
-  it('should increment the counter when clicked', () => {
-    cy.visit('/');
-    cy.contains('button', 'Count is 0').click();
-    cy.contains('button', 'Count is 1').should('be.visible');
+  it('should display the dashboard', () => {
+    cy.contains('h2', 'Visão geral').should('be.visible');
+    cy.contains('Total de despesas').should('be.visible');
+  });
+
+  it('should navigate to groups', () => {
+    cy.contains('a', 'Criar primeiro grupo').click();
+
+    cy.location('pathname').should('eq', '/groups');
+    cy.contains('h2', 'Meus grupos').should('be.visible');
   });
 });
