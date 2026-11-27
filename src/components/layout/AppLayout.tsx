@@ -1,0 +1,15 @@
+
+import { Outlet } from 'react-router-dom';
+import { Sidebar } from './Sidebar';
+
+export function AppLayout() {
+  return (
+    <div className="min-h-screen md:flex">
+      <Sidebar />
+
+      <main className="min-w-0 flex-1 p-6 md:p-10">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
